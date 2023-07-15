@@ -132,7 +132,7 @@ const createModels = function () {
 			if (!AirCS.lines.some(line => line.a === platform.to && line.b === shortcode)) {
 				let otherPlatform = Object.values(AirCS.stations[platform.to].platforms).find(p => p.to === shortcode);
 				if (!otherPlatform) {
-					console.log("There's no platform from", platform.to, "back to", shortcode, "! Is the Distances sheet broken?");
+					console.log(`There's no platform from ${platform.to} back to ${shortcode}! Is the Distances sheet broken?`);
 					otherPlatform = {platform: "?"};
 				}
 				let line = {
