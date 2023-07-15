@@ -4,6 +4,18 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import fetchData from './data.js'
 import {stationTooltip, lineTooltip, hideTooltip} from "./tooltip.js";
 
+String.prototype.hashCode = function() {
+	let hash = 0,
+		i, chr;
+	if (this.length === 0) return hash;
+	for (i = 0; i < this.length; i++) {
+		chr = this.charCodeAt(i);
+		hash = ((hash << 5) - hash) + chr;
+		hash |= 0;
+	}
+	return hash;
+};
+
 let AirCS = {
 	pointer: new THREE.Vector2()
 };
@@ -19,7 +31,7 @@ AirCS.renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(AirCS.renderer.domElement);
 
 AirCS.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-AirCS.camera.position.set(5, 5, 5);
+AirCS.camera.position.set(0, 25, 50);
 
 AirCS.controls = new OrbitControls(AirCS.camera, AirCS.renderer.domElement);
 AirCS.controls.enableDamping = true;
@@ -105,6 +117,8 @@ const createModels = function () {
 			if (neighbours.length > 0) {
 				station.mesh.position.copy(neighbours.reduce((acc, x) => acc.add(x),
 						new THREE.Vector3()).divideScalar(neighbours.length));
+				let hashcode = station.shortcode.hashCode();
+				station.mesh.position.add(new THREE.Vector3(0.1 * Math.cos(hashcode), 0, 0.1 * Math.sin(hashcode)));
 			} else {
 				newRemainingStations.push(station);
 			}
@@ -115,7 +129,7 @@ const createModels = function () {
 
 	for (let [shortcode, station] of Object.entries(AirCS.stations)) {
 		for (let platform of Object.values(station.platforms)) {
-			if (!AirCS.lines.some(line => line.b === station)) {
+			if (!AirCS.lines.some(line => line.a === platform.to && line.b === shortcode)) {
 				let otherPlatform = Object.values(AirCS.stations[platform.to].platforms).find(p => p.to === shortcode);
 				if (!otherPlatform) {
 					console.log("There's no platform from", platform.to, "back to", shortcode, "! Is the Distances sheet broken?");
