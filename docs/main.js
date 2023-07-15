@@ -16,7 +16,7 @@ String.prototype.hashCode = function() {
 	return hash;
 };
 
-let AirCS = {
+window.AirCS = {
 	pointer: new THREE.Vector2()
 };
 
@@ -238,7 +238,7 @@ const animate = function () {
 		}
 	}
 	if (stationIntersect) {
-		stationTooltip(stationIntersect.shortcode, stationIntersect.aircs_station);
+		stationTooltip(stationIntersect);
 	} else if (lineIntersect) {
 		lineTooltip(lineIntersect.a, lineIntersect.b, lineIntersect.type, lineIntersect.service);
 	} else {

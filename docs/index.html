@@ -3,53 +3,63 @@
 	<meta charset="UTF-8">
 	<title>AirCS Navigation</title>
 	<style>
-		@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap');
-		html, body, div, span, applet, object, iframe,
-		h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-		a, abbr, acronym, address, big, cite, code,
-		del, dfn, em, img, ins, kbd, q, s, samp,
-		small, strike, strong, sub, sup, tt, var,
-		b, u, i, center,
-		dl, dt, dd, ol, ul, li,
-		fieldset, form, label, legend,
-		table, caption, tbody, tfoot, thead, tr, th, td,
-		article, aside, canvas, details, embed,
-		figure, figcaption, footer, header, hgroup,
-		menu, nav, output, ruby, section, summary,
-		time, mark, audio, video {
-			margin: 0;
-			padding: 0;
-			border: 0;
-			vertical-align: baseline;
-		}
-		body {
-			margin: 0;
-			font-family: Montserrat, sans-serif;
-		}
-		p {
-			font-size: 12pt;
-		}
-		h3 {
-			font-size: 16pt;
-			font-weight: 300;
-		}
-		h3.A {
-			color: #3377aa;
-		}
-		h3.Y {
-			color: #cc4400;
-		}
-		#tooltip {
-			min-width: 350px;
-			visibility: hidden;
-			position: absolute;
-			transform: translate(-50%, calc(-100% - 10px));
-			z-index: 100;
-			background: white;
-			border-radius: 10px;
-			padding: 5px;
-			box-shadow: 3px 3px 5px black;
-		}
+	  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap');
+	  html, body, div, span, applet, object, iframe,
+	  h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+	  a, abbr, acronym, address, big, cite, code,
+	  del, dfn, em, img, ins, kbd, q, s, samp,
+	  small, strike, strong, sub, sup, tt, var,
+	  b, u, i, center,
+	  dl, dt, dd, ol, ul, li,
+	  fieldset, form, label, legend,
+	  table, caption, tbody, tfoot, thead, tr, th, td,
+	  article, aside, canvas, details, embed,
+	  figure, figcaption, footer, header, hgroup,
+	  menu, nav, output, ruby, section, summary,
+	  time, mark, audio, video {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		vertical-align: baseline;
+	  }
+	  body {
+		margin: 0;
+		font-family: Montserrat, sans-serif;
+	  }
+	  p {
+		font-size: 12pt;
+	  }
+	  h3 {
+		font-size: 16pt;
+		font-weight: 300;
+	  }
+	  .A {
+		color: #3377aa;
+	  }
+	  .Y {
+		color: #cc4400;
+	  }
+	  .shortcode {
+		color: #555;
+	  }
+	  #tooltip {
+		min-width: 350px;
+		visibility: hidden;
+		position: absolute;
+		transform: translate(-50%, calc(-100% - 10px));
+		z-index: 100;
+		background: white;
+		border-radius: 10px;
+		padding: 5px;
+		box-shadow: 3px 3px 5px black;
+	  }
+	  td, th {
+		text-align: left;
+		padding-right: 5px;
+	  }
+	  td.platform {
+		text-align: center;
+	  }
 	</style>
 
 	<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -60,7 +70,7 @@
 				"three/addons/": "https://unpkg.com/three@0.154.0/examples/jsm/"
 			}
 		}
-  	</script>
+	</script>
 	<script src="https://unpkg.com/mathjs@11.8.2/lib/browser/math.js"></script>
 </head>
 <body>
