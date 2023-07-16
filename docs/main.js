@@ -78,9 +78,13 @@ AirCS.stations = await fetchData();
 
 // Create models for stations and lines.
 const createModels = function () {
-	let stationGeometry = new THREE.SphereGeometry(0.1, 32, 16),
+	let stationGeometry = new THREE.SphereGeometry(0.2, 32, 16),
 		stationMaterial = new THREE.MeshLambertMaterial({color: 0xff0000}),
-		lineGeometry = new THREE.BoxGeometry(0.1, 1, 0.01).rotateX(Math.PI / -2),
+		lineGeometries = {
+			X: new THREE.BoxGeometry(0.15, 1, 0.001).rotateX(Math.PI / -2),
+			Y: new THREE.BoxGeometry(0.15, 1, 0.002).rotateX(Math.PI / -2),
+			A: new THREE.BoxGeometry(0.15, 1, 0.003).rotateX(Math.PI / -2)
+		},
 		lineMaterials = {
 			X: new THREE.MeshBasicMaterial({color: 0}),
 			Y: new THREE.MeshBasicMaterial({color: 0xcc4400}),
@@ -146,7 +150,7 @@ const createModels = function () {
 					bPlatform: otherPlatform.platform,
 					type: platform.type,
 					service: platform.service,
-					mesh: new THREE.Mesh(lineGeometry, lineMaterials[platform.type] || lineMaterials.X),
+					mesh: new THREE.Mesh(lineGeometries[platform.type], lineMaterials[platform.type] || lineMaterials.X),
 					update: function () {
 						// Move this plane between the stations and rotate and scale it so that it reaches both
 						let a = AirCS.stations[this.a].mesh.position,
