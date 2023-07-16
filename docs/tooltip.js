@@ -1,13 +1,4 @@
-const nameOrShortcode = function (name, shortcode) {
-	return name ? `${name} <span class="shortcode">(${shortcode})</span>` : shortcode;
-}
-
-const comparePlatforms = function (a, b) {
-	let matchA = /^([A-Z]*)(\d*)$/.exec(a),
-		matchB = /^([A-Z]*)(\d*)$/.exec(b);
-
-	return matchA[1].localeCompare(matchB[1]) || matchA[2] - matchB[2];
-}
+import {comparePlatforms, nameOrShortcode} from "./util.js";
 
 const stationTooltip = function (station) {
 	document.body.style.cursor = "pointer";

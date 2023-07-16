@@ -3,6 +3,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 
 import fetchData from './data.js'
 import {stationTooltip, lineTooltip, hideTooltip} from "./tooltip.js";
+import {cubicEaseInOut, cubicEaseInOutDerivative, nameOrShortcode} from "./util.js";
 
 String.prototype.hashCode = function() {
 	let hash = 0,
@@ -69,9 +70,13 @@ AirCS.scene.add(AirCS.dirLight);
 
 AirCS.raycaster = new THREE.Raycaster();
 
+AirCS.clock = new THREE.Clock();
+AirCS.clock.start();
+
 // Fetch data
 AirCS.stations = await fetchData();
 
+// Create models for stations and lines.
 const createModels = function () {
 	let stationGeometry = new THREE.SphereGeometry(0.1, 32, 16),
 		stationMaterial = new THREE.MeshLambertMaterial({color: 0xff0000}),
@@ -163,6 +168,7 @@ const createModels = function () {
 };
 createModels();
 
+// Move the stations so that their mean position on the map is (0, 0, 0).
 const balance = function () {
 	let mean = new THREE.Vector3();
 	for (let position of Object.values(AirCS.stations).map(s => s.mesh.position)) {
@@ -174,6 +180,9 @@ const balance = function () {
 	}
 }
 
+// Try to find a good graph drawing of the network by pulling all neighbours towards each other and pushing every pair
+// of stations away from each other. Also, apply some force towards the centre of the world so that stations don't drift
+// off. Returns the mean square position change of the stations.
 const physics = function (dt) {
 	const SEPARATE = 600; // Push away vertices from each other
 	const SEPARATE_RADIUS = 15; // Vertices affect each other within this distance
@@ -212,7 +221,7 @@ const physics = function (dt) {
 
 console.log("Loaded", Object.keys(AirCS.stations).length, "stations, ", AirCS.lines.length, "lines");
 
-// Main loop
+// Register pointer movement to use for showing information popups
 window.addEventListener("pointermove", function (e) {
 	document.getElementById("tooltip").style.left = e.clientX + "px";
 	document.getElementById("tooltip").style.top = e.clientY + "px";
@@ -220,10 +229,75 @@ window.addEventListener("pointermove", function (e) {
 	AirCS.pointer.y = - (e.clientY / window.innerHeight) * 2 + 1;
 });
 
+const slideCamera = function (startTime, endTime, targetPosition, cameraPosition) {
+	AirCS.cameraSliding = {
+		startTime,
+		endTime,
+		targetPosition,
+		cameraPosition
+	};
+};
+
+// Searching
+const search = function () {
+	let query = this.value.toUpperCase();
+	let results = Object.values(AirCS.stations)
+		.filter(station => station.shortcode.includes(query) || station.aircs_station && station.aircs_station.toUpperCase().includes(query));
+	let resultsElement = document.getElementById("results");
+	resultsElement.innerHTML = "";
+	for (let r of results) {
+		let item = document.createElement("li");
+		item.className = "result";
+		item.tabIndex = 0; // Make it tabbable, and also cause it to appear as a relatedTarget in blur events
+		let that = this;
+		item.addEventListener("click", function (e) {
+			that.value = r.aircs_station || r.shortcode;
+			slideCamera(AirCS.clock.elapsedTime, AirCS.clock.elapsedTime + 1,
+				r.mesh.position,
+				new THREE.Vector3(0, 3, 4).add(r.mesh.position));
+			resultsElement.innerHTML = "";
+		});
+		item.innerHTML = nameOrShortcode(r.aircs_station, r.shortcode);
+		resultsElement.appendChild(item);
+	}
+	if (results.length === 0) {
+		resultsElement.innerHTML = "<li><i>No stations found</i></li>";
+	}
+}
+
+document.getElementById("search").addEventListener("input", search);
+document.getElementById("search").addEventListener("focusin", search);
+document.getElementById("search").addEventListener("focusout", function (event) {
+	// Hide the search results, unless one of the search results gained focus.
+	console.log(event.relatedTarget);
+	let resultsElement = document.getElementById("results");
+	if (!resultsElement.contains(event.relatedTarget)) {
+		resultsElement.innerHTML = "";
+	}
+});
+
+// Main loop
 const animate = function () {
+	// Camera sliding
+	let dt = AirCS.clock.getDelta();
+	if (AirCS.cameraSliding) {
+		let y = cubicEaseInOut(AirCS.cameraSliding.startTime, AirCS.cameraSliding.endTime, AirCS.clock.elapsedTime),
+			dy = dt * cubicEaseInOutDerivative(AirCS.cameraSliding.startTime, AirCS.cameraSliding.endTime, AirCS.clock.elapsedTime),
+			targetDir = new THREE.Vector3().subVectors(AirCS.cameraSliding.targetPosition, AirCS.controls.target).divideScalar(1 - y),
+			cameraDir = new THREE.Vector3().subVectors(AirCS.cameraSliding.cameraPosition, AirCS.camera.position).divideScalar(1 - y);
+		AirCS.controls.target.addScaledVector(targetDir, dy);
+		AirCS.camera.position.addScaledVector(cameraDir, dy);
+		if (AirCS.cameraSliding.endTime <= AirCS.clock.elapsedTime) {
+			AirCS.controls.target.copy(AirCS.cameraSliding.targetPosition);
+			AirCS.camera.position.copy(AirCS.cameraSliding.cameraPosition);
+			delete AirCS.cameraSliding;
+		}
+	}
+
 	AirCS.controls.update();
 	AirCS.raycaster.setFromCamera(AirCS.pointer, AirCS.camera)
 
+	// Raycast and show information popup
 	const intersects = AirCS.raycaster.intersectObjects(AirCS.scene.children);
 	let lineIntersect, stationIntersect;
 	for (let intersect of intersects) {
@@ -245,17 +319,17 @@ const animate = function () {
 		hideTooltip();
 	}
 
+	// Render
 	AirCS.renderer.render(AirCS.scene, AirCS.camera);
 	requestAnimationFrame(animate);
 }
 animate();
 
-AirCS.clock = new THREE.Clock();
+// Run physics separately, we don't want to wait for animation frames
 const process = function () {
 	let i = 0;
 	return function () {
 		i += 1;
-		//let dt = AirCS.clock.getDelta();
 		let movement = physics(1 / 60);
 		balance();
 		if (movement >= 0.0105 / 60) {
