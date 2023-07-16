@@ -16,28 +16,6 @@
 		}
 	</script>
 	<script src="https://unpkg.com/mathjs@11.8.2/lib/browser/math.js"></script>
-	<script>
-		var dark = false;
-
-		function swapStylesheet() {
-			if(!dark)
-			{
-				document.getElementById('swap').setAttribute('href', "css/dark.css");
-				ThreejsColors.ApplyBackground("#2c2c2c");
-				ThreejsColors.ApplyFloor("#1c1c1c");
-				ThreejsColors.ApplyXLine("#d3d3d3");
-				dark = true;
-			}
-			else
-			{
-				document.getElementById('swap').setAttribute('href', "css/light.css");
-				ThreejsColors.ApplyBackground("#ffffff");
-				ThreejsColors.ApplyFloor("#c0c0c0");
-				ThreejsColors.ApplyXLine("#000000");
-				dark = false;
-			}
-		}
-	</script>
 </head>
 <body>
 <div id="tooltip"></div>
@@ -47,7 +25,7 @@
 		<ul id="results"></ul>
 	</div>
 	<div id="links">
-		<a href="#"><img class="logo" src="img/light_mode_FILL0_wght400_GRAD0_opsz48.svg" alt="Switch Light/Dark Mode" onClick="swapStylesheet()"/></a>
+		<a id="darkModeSwitch" href="#"><img class="logo" src="img/light_mode_FILL0_wght400_GRAD0_opsz48.svg" alt="Switch Light/Dark Mode"/></a>
 		<a href="#"><img class="logo" src="img/settings_FILL0_wght400_GRAD0_opsz48.svg" alt="Settings"/></a>
 		<span style="display: inline-block; width:1px; height:100%; background:#2C2C2C; margin: 0 2px;"></span>
 		<a href="https://aircs.racing/" target="_blank"><img class="logo" src="https://aircs.racing/aircsfavicons/favicon-96x96.png" alt="AirCS logo"/></a>
