@@ -113,7 +113,6 @@ const createModels = function () {
 
 	let i = 0;
 	while (remainingStations.length > 0 && i < 10) {
-		console.log("Stations with no location:", remainingStations)
 		let newRemainingStations = [];
 		for (let station of remainingStations) {
 			let neighbours = Object.values(station.platforms)
@@ -269,7 +268,6 @@ document.getElementById("search").addEventListener("input", search);
 document.getElementById("search").addEventListener("focusin", search);
 document.getElementById("search").addEventListener("focusout", function (event) {
 	// Hide the search results, unless one of the search results gained focus.
-	console.log(event.relatedTarget);
 	let resultsElement = document.getElementById("results");
 	if (!resultsElement.contains(event.relatedTarget)) {
 		resultsElement.innerHTML = "";
