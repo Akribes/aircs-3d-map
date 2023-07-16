@@ -1,4 +1,7 @@
 @import url('./page.css');
+body {
+  color: lightgrey;
+}
 .A {
   color: #3377aa;
 }

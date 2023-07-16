@@ -18,6 +18,7 @@ time, mark, audio, video, input {
   vertical-align: baseline;
   box-sizing: border-box;
   font-family: Montserrat, sans-serif;
+  color: inherit;
 }
 p, input {
   font-size: 12pt;
