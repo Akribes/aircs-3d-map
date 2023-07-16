@@ -1,0 +1,31 @@
+@import url('./page.css');
+body {
+  color: lightgrey;
+}
+.A {
+  color: #3377aa;
+}
+.Y {
+  color: #cc4400;
+}
+.shortcode {
+  color: #555;
+}
+#tooltip {
+  background: #1f1f1f;
+}
+#header {
+  background-color: #1f1f1ff0;
+}
+input {
+  border-bottom: 2px solid lightgray;
+}
+img.logo {
+  filter: grayscale(100%) invert(82.5%);
+}
+#results {
+  background-color: #1f1f1f;
+}
+#results li.result:hover {
+  background-color: #2f2f2f;
+}

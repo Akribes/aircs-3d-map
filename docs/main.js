@@ -20,6 +20,14 @@ String.prototype.hashCode = function() {
 
 window.AirCS = {
 	pointer: new THREE.Vector2(),
+	materials: {
+		floor: new THREE.MeshLambertMaterial({side: THREE.DoubleSide, color: 0xc0c0c0}),
+		lines: {
+			X: new THREE.MeshBasicMaterial({color: 0}),
+			Y: new THREE.MeshBasicMaterial({color: 0xcc4400}),
+			A: new THREE.MeshBasicMaterial({color: 0x3377aa})
+		}
+	},
 	gltf: new GLTFLoader()
 };
 
@@ -51,8 +59,7 @@ window.addEventListener('resize', function () {
 AirCS.floor = (function () {
 	let geometry = new THREE.CircleGeometry(1000, 32);
 	geometry.rotateX(Math.PI / 2);
-	return new THREE.Mesh(geometry,
-		new THREE.MeshLambertMaterial({side: THREE.DoubleSide, color: 0xc0c0c0}));
+	return new THREE.Mesh(geometry, AirCS.materials.floor);
 })();
 AirCS.floor.receiveShadow = true;
 AirCS.scene.add(AirCS.floor);
@@ -86,11 +93,6 @@ const createModels = function () {
 			X: new THREE.BoxGeometry(0.15, 1, 0.001).rotateX(Math.PI / -2),
 			Y: new THREE.BoxGeometry(0.15, 1, 0.002).rotateX(Math.PI / -2),
 			A: new THREE.BoxGeometry(0.15, 1, 0.003).rotateX(Math.PI / -2)
-		},
-		lineMaterials = {
-			X: new THREE.MeshBasicMaterial({color: 0}),
-			Y: new THREE.MeshBasicMaterial({color: 0xcc4400}),
-			A: new THREE.MeshBasicMaterial({color: 0x3377aa}),
 		};
 
 	AirCS.lines = [];
@@ -166,7 +168,8 @@ const createModels = function () {
 					bPlatform: otherPlatform.platform,
 					type: platform.type,
 					service: platform.service,
-					mesh: new THREE.Mesh(lineGeometries[platform.type], lineMaterials[platform.type] || lineMaterials.X),
+					mesh: new THREE.Mesh(lineGeometries[platform.type],
+						AirCS.materials.lines[platform.type] || AirCS.materials.lines.X),
 					update: function () {
 						// Move this plane between the stations and rotate and scale it so that it reaches both
 						let a = AirCS.stations[this.a].mesh.position,
@@ -293,6 +296,40 @@ document.getElementById("search").addEventListener("focusout", function (event) 
 		resultsElement.innerHTML = "";
 	}
 });
+
+// Dark mode
+AirCS.darkMode = (function () {
+	let dark = false,
+		applyBackground = function (colour) {
+			AirCS.scene.background.setHex(colour);
+			AirCS.scene.fog.color.setHex(colour);
+		},
+		applyFloor = function (colour) {
+			AirCS.materials.floor.color.setHex(colour);
+		},
+		applyXLine = function (colour) {
+			AirCS.materials.lines.X.color.setHex(colour);
+		},
+		apply = function () {
+			if (dark) {
+				document.getElementById("swap").setAttribute("href", "css/dark.css");
+				applyBackground(0x2c2c2c);
+				applyFloor(0x1c1c1c);
+				applyXLine(0xd3d3d3);
+			} else {
+				document.getElementById("swap").setAttribute("href", "css/light.css");
+				applyBackground(0xffffff);
+				applyFloor(0xc0c0c0);
+				applyXLine(0);
+			}
+		};
+	return {
+		get: function () { return dark; },
+		set: function (darkMode) { dark = darkMode; apply(); },
+		toggle: function () { dark = !dark; apply(); }
+	};
+})();
+document.getElementById("darkModeSwitch").addEventListener("click", AirCS.darkMode.toggle);
 
 // Main loop
 const animate = function () {

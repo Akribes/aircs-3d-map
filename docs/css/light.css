@@ -1,0 +1,28 @@
+@import url('./page.css');
+.A {
+  color: #3377aa;
+}
+.Y {
+  color: #cc4400;
+}
+.shortcode {
+  color: #555;
+}
+#tooltip {
+  background: white;
+}
+#header {
+  background-color: #eeeeeef0;
+}
+input {
+  border-bottom: 2px solid black;
+}
+img.logo {
+  filter: grayscale(100%);
+}
+#results {
+  background-color: #dddddd;
+}
+#results li.result:hover {
+  background-color: #bbbbbb;
+}
