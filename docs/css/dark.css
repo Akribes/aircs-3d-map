@@ -1,0 +1,44 @@
+@import url(page.css);
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap');
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video, input {
+  color: lightgray;
+}
+.A {
+  color: #3377aa;
+}
+.Y {
+  color: #cc4400;
+}
+.shortcode {
+  color: #555;
+}
+#tooltip {
+  background: #1f1f1f;
+}
+#header {
+  background-color: #1f1f1f;
+}
+input	{
+  border-bottom: 2px solid lightgray;
+}
+img.logo {
+  filter: grayscale(100%) invert(82.5%);
+}
+#results {
+  background-color: #1f1f1f;
+}
+#results li.result:hover {
+  background-color: #2f2f2f;
+}

@@ -39,6 +39,27 @@ AirCS.controls.enableDamping = true;
 AirCS.controls.screenSpacePanning = false;
 AirCS.controls.maxPolarAngle = 0.49 * Math.PI;
 
+AirCS.materials = {};
+AirCS.materials.floor = new THREE.MeshLambertMaterial({side: THREE.DoubleSide, color: 0xc0c0c0});
+AirCS.materials.xline = new THREE.MeshBasicMaterial({color: 0}),
+AirCS.materials.yline = new THREE.MeshBasicMaterial({color: 0xcc4400}),
+AirCS.materials.aline = new THREE.MeshBasicMaterial({color: 0x3377aa}),
+
+window.ThreejsColors = {};
+
+ThreejsColors.ApplyBackground = (function (color){
+	AirCS.scene.background = new THREE.Color(color);
+	AirCS.scene.fog = new THREE.Fog(AirCS.scene.background, 1, 500);
+})
+
+ThreejsColors.ApplyFloor = (function (color){
+	AirCS.materials.floor.color = new THREE.Color(color);
+})
+
+ThreejsColors.ApplyXLine = (function (color){
+	AirCS.materials.xline.color = new THREE.Color(color);
+})
+
 window.addEventListener('resize', function () {
 	AirCS.camera.aspect = window.innerWidth / window.innerHeight;
 	AirCS.camera.updateProjectionMatrix();
@@ -49,8 +70,7 @@ window.addEventListener('resize', function () {
 AirCS.floor = (function () {
 	let geometry = new THREE.CircleGeometry(1000, 32);
 	geometry.rotateX(Math.PI / 2);
-	return new THREE.Mesh(geometry,
-		new THREE.MeshLambertMaterial({side: THREE.DoubleSide, color: 0xc0c0c0}));
+	return new THREE.Mesh(geometry, AirCS.materials.floor);
 })();
 AirCS.floor.receiveShadow = true;
 AirCS.scene.add(AirCS.floor);
@@ -86,9 +106,9 @@ const createModels = function () {
 			A: new THREE.BoxGeometry(0.15, 1, 0.003).rotateX(Math.PI / -2)
 		},
 		lineMaterials = {
-			X: new THREE.MeshBasicMaterial({color: 0}),
-			Y: new THREE.MeshBasicMaterial({color: 0xcc4400}),
-			A: new THREE.MeshBasicMaterial({color: 0x3377aa}),
+			X: AirCS.materials.xline,
+			Y: AirCS.materials.yline,
+			A: AirCS.materials.aline,
 		};
 
 	AirCS.lines = [];

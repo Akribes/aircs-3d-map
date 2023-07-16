@@ -3,132 +3,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>AirCS Navigation</title>
-	<style>
-	  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap');
-	  html, body, div, span, applet, object, iframe,
-	  h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-	  a, abbr, acronym, address, big, cite, code,
-	  del, dfn, em, img, ins, kbd, q, s, samp,
-	  small, strike, strong, sub, sup, tt, var,
-	  b, u, i, center,
-	  dl, dt, dd, ol, ul, li,
-	  fieldset, form, label, legend,
-	  table, caption, tbody, tfoot, thead, tr, th, td,
-	  article, aside, canvas, details, embed,
-	  figure, figcaption, footer, header, hgroup,
-	  menu, nav, output, ruby, section, summary,
-	  time, mark, audio, video, input {
-		margin: 0;
-		padding: 0;
-		border: 0;
-		vertical-align: baseline;
-		box-sizing: border-box;
-        font-family: Montserrat, sans-serif;
-	  }
-	  p, input {
-		font-size: 12pt;
-	  }
-	  h3 {
-		font-size: 16pt;
-		font-weight: 300;
-	  }
-	  .A {
-		color: #3377aa;
-	  }
-	  .Y {
-		color: #cc4400;
-	  }
-	  .shortcode {
-		color: #555;
-	  }
-	  #tooltip {
-		min-width: 350px;
-		visibility: hidden;
-		position: absolute;
-		transform: translate(-50%, calc(-100% - 10px));
-		z-index: 100;
-		background: white;
-		border-radius: 10px;
-		padding: 5px;
-		box-shadow: 2px 2px 8px black;
-	  }
-	  td, th {
-		text-align: left;
-		padding-right: 5px;
-	  }
-	  td.platform {
-		text-align: center;
-	  }
-      #header {
-        padding: 0 50px;
-		z-index: 150;
-		position: absolute;
-		height: 3em;
-		width: 100%;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		background-color: #eeeeee;
-		gap: 30px;
-      }
-      @media only screen and (min-width: 1200px) {
-        #header {
-          padding: 0 250px;
-        }
-	  }
-      input	{
-		background-color: transparent;
-		outline: none;
-		border-bottom: 2px solid black;
-	  }
-	  #links {
-		height: 36px;
-		flex-shrink: 0;
-		padding-right: 6px;
-	  }
-	  img.logo {
-		height: 100%;
-		flex-grow: 0;
-		padding: 3px 3px;
-        filter: grayscale(100%);
-	  }
-	  #searchcontainer {
-		flex-shrink: 1;
-		min-width: 70px;
-		width: 350px;
-        position: relative;
-        margin: 5px;
-		padding: 5px;
-	  }
-	  #search {
-        padding: 2px;
-		width: 100%;
-	  }
-	  #results {
-		position: absolute;
-		top: 50px;
-		left: 0;
-        margin: 0;
-		display: block;
-		width: 100%;
-		border-radius: 10px;
-        background-color: #dddddd;
-		list-style-type: none;
-		overflow-y: scroll;
-		max-height: 350px;
-	  }
-	  #results li {
-		width: 100%;
-        border-radius: 10px;
-		padding: 5px;
-	  }
-	  #results li.result {
-        cursor: pointer;
-	  }
-	  #results li.result:hover {
-		background-color: #bbbbbb;
-	  }
-	</style>
+	
+	<link id="swap" rel="stylesheet" type="text/css" href="css/light.css"/>
 
 	<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
 	<script type="importmap">
@@ -140,15 +16,43 @@
 		}
 	</script>
 	<script src="https://unpkg.com/mathjs@11.8.2/lib/browser/math.js"></script>
+	<script>
+		var dark = false;
+
+		function swapStylesheet() {
+			if(!dark)
+			{
+				document.getElementById('swap').setAttribute('href', "css/dark.css");
+				ThreejsColors.ApplyBackground("#2c2c2c");
+				ThreejsColors.ApplyFloor("#1c1c1c");
+				ThreejsColors.ApplyXLine("#d3d3d3");
+				dark = true;
+			}
+			else
+			{
+				document.getElementById('swap').setAttribute('href', "css/light.css");
+				ThreejsColors.ApplyBackground("#ffffff");
+				ThreejsColors.ApplyFloor("#c0c0c0");
+				ThreejsColors.ApplyXLine("#000000");
+				dark = false;
+			}
+		}
+	</script>
 </head>
 <body>
 <div id="tooltip"></div>
 <div id="header">
+	<div id="links">
+		
+	</div>
 	<div id="searchcontainer">
 		<input id="search" placeholder="Search..." />
 		<ul id="results"></ul>
 	</div>
 	<div id="links">
+		<a href="#"><img class="logo" src="img/light_mode_FILL0_wght400_GRAD0_opsz48.svg" alt="Switch Light/Dark Mode" onClick="swapStylesheet()"/></a>
+		<a href="#"><img class="logo" src="img/settings_FILL0_wght400_GRAD0_opsz48.svg" alt="Settings"/></a>
+		<span style="display: inline-block; width:1px; height:100%; background:#2C2C2C; margin: 0 2px;"></span>
 		<a href="https://aircs.racing/" target="_blank"><img class="logo" src="https://aircs.racing/aircsfavicons/favicon-96x96.png" alt="AirCS logo"/></a>
 		<a href="https://github.com/Akribes/aircs-3d-map/" target="_blank"><img class="logo" src="img/github-mark.svg" alt="GitHub logo"/></a>
 	</div>
