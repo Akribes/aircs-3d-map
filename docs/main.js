@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 
 import fetchData from './data.js'
 import {stationTooltip, lineTooltip, hideTooltip} from "./tooltip.js";
@@ -26,7 +27,8 @@ window.AirCS = {
 			Y: new THREE.MeshBasicMaterial({color: 0xcc4400}),
 			A: new THREE.MeshBasicMaterial({color: 0x3377aa})
 		}
-	}
+	},
+	gltf: new GLTFLoader()
 };
 
 AirCS.scene = new THREE.Scene();
@@ -101,6 +103,20 @@ const createModels = function () {
 		stationMesh.castShadow = true;
 		stationMesh.receiveShadow = true;
 		stationMesh.userData.AirCSStation = station;
+
+		// Load landmark model if there is one
+		if ([
+			"MSA"
+		].includes(station.shortcode)) {
+			AirCS.gltf.load(`./models/${station.shortcode}.glb`, function (x) {
+				stationMesh.add(x.scene);
+			}, function (xhr) {
+				console.log(station.shortcode, (xhr.loaded / xhr.total * 100) + "% loaded");
+			}, function (err) {
+				console.log("Error loading model for", station.shortcode, err);
+			});
+		}
+
 		AirCS.scene.add(stationMesh);
 		station.mesh = stationMesh;
 		if (station.cx || station.cz) {
