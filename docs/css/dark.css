@@ -1,20 +1,4 @@
-@import url(page.css);
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap');
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed,
-figure, figcaption, footer, header, hgroup,
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video, input {
-  color: lightgray;
-}
+@import url('./page.css');
 .A {
   color: #3377aa;
 }
@@ -30,7 +14,7 @@ time, mark, audio, video, input {
 #header {
   background-color: #1f1f1ff0;
 }
-input	{
+input {
   border-bottom: 2px solid lightgray;
 }
 img.logo {
