@@ -25,7 +25,7 @@ AirCS.scene = new THREE.Scene();
 AirCS.scene.background = new THREE.Color(0xffffff)
 AirCS.scene.fog = new THREE.Fog(AirCS.scene.background, 1, 500);
 
-AirCS.renderer = new THREE.WebGLRenderer();
+AirCS.renderer = new THREE.WebGLRenderer({antialias: true});
 AirCS.renderer.shadowMap.enabled = true;
 AirCS.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 AirCS.renderer.setSize(window.innerWidth, window.innerHeight);
