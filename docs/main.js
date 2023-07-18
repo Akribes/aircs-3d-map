@@ -106,7 +106,7 @@ const createModels = function () {
 
 		// Load landmark model if there is one
 		if ([
-			"LD", "MSA", "UFO"
+			"DLA", "III", "LD", "MSA", "UFO", "WOVR", "YAV"
 		].includes(station.shortcode)) {
 			AirCS.gltf.load(`./models/${station.shortcode}.glb`, function (x) {
 				stationMesh.add(x.scene);
