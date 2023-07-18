@@ -244,10 +244,14 @@ const physics = function (dt) {
 console.log("Loaded", Object.keys(AirCS.stations).length, "stations, ", AirCS.lines.length, "lines");
 
 // Register pointer movement to use for showing information popups
-window.addEventListener("pointermove", function (e) {
+const handlePointerEvents = function (e) {
 	AirCS.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
 	AirCS.pointer.y = - (e.clientY / window.innerHeight) * 2 + 1;
-});
+}
+window.addEventListener("pointermove", handlePointerEvents, true);
+window.addEventListener("pointerdown", handlePointerEvents, true);
+window.addEventListener("pointerup", handlePointerEvents, true);
+
 tooltip.addEventListenersTo(AirCS.renderer.domElement);
 
 AirCS.viewStation = function (station) {
@@ -282,7 +286,7 @@ const search = function () {
 	if (results.length === 0) {
 		resultsElement.innerHTML = "<li><i>No stations found</i></li>";
 	}
-}
+};
 
 document.getElementById("search").addEventListener("input", search);
 document.getElementById("search").addEventListener("focusin", search);
@@ -328,29 +332,8 @@ AirCS.darkMode = (function () {
 })();
 document.getElementById("darkModeSwitch").addEventListener("click", AirCS.darkMode.toggle);
 
-// Main loop
-const animate = function () {
-	// Camera sliding
-	let dt = AirCS.clock.getDelta();
-	if (AirCS.cameraSliding) {
-		tooltip.unfreeze();
-		let y = cubicEaseInOut(AirCS.cameraSliding.startTime, AirCS.cameraSliding.endTime, AirCS.clock.elapsedTime),
-			dy = dt * cubicEaseInOutDerivative(AirCS.cameraSliding.startTime, AirCS.cameraSliding.endTime, AirCS.clock.elapsedTime),
-			targetDir = new THREE.Vector3().subVectors(AirCS.cameraSliding.targetPosition, AirCS.controls.target).divideScalar(1 - y),
-			cameraDir = new THREE.Vector3().subVectors(AirCS.cameraSliding.cameraPosition, AirCS.camera.position).divideScalar(1 - y);
-		AirCS.controls.target.addScaledVector(targetDir, dy);
-		AirCS.camera.position.addScaledVector(cameraDir, dy);
-		if (AirCS.cameraSliding.endTime <= AirCS.clock.elapsedTime) {
-			AirCS.controls.target.copy(AirCS.cameraSliding.targetPosition);
-			AirCS.camera.position.copy(AirCS.cameraSliding.cameraPosition);
-			delete AirCS.cameraSliding;
-		}
-	}
-
-	AirCS.controls.update();
+AirCS.raycastPointer = function () {
 	AirCS.raycaster.setFromCamera(AirCS.pointer, AirCS.camera)
-
-	// Raycast and show information popup
 	const intersects = AirCS.raycaster.intersectObjects(AirCS.scene.children);
 	let lineIntersect, stationIntersect;
 	for (let intersect of intersects) {
@@ -374,7 +357,29 @@ const animate = function () {
 		AirCS.renderer.domElement.style.cursor = "auto";
 		tooltip.removeTarget();
 	}
+};
 
+// Main loop
+const animate = function () {
+	// Camera sliding
+	let dt = AirCS.clock.getDelta();
+	if (AirCS.cameraSliding) {
+		tooltip.unfreeze();
+		let y = cubicEaseInOut(AirCS.cameraSliding.startTime, AirCS.cameraSliding.endTime, AirCS.clock.elapsedTime),
+			dy = dt * cubicEaseInOutDerivative(AirCS.cameraSliding.startTime, AirCS.cameraSliding.endTime, AirCS.clock.elapsedTime),
+			targetDir = new THREE.Vector3().subVectors(AirCS.cameraSliding.targetPosition, AirCS.controls.target).divideScalar(1 - y),
+			cameraDir = new THREE.Vector3().subVectors(AirCS.cameraSliding.cameraPosition, AirCS.camera.position).divideScalar(1 - y);
+		AirCS.controls.target.addScaledVector(targetDir, dy);
+		AirCS.camera.position.addScaledVector(cameraDir, dy);
+		if (AirCS.cameraSliding.endTime <= AirCS.clock.elapsedTime) {
+			AirCS.controls.target.copy(AirCS.cameraSliding.targetPosition);
+			AirCS.camera.position.copy(AirCS.cameraSliding.cameraPosition);
+			delete AirCS.cameraSliding;
+		}
+	}
+
+	AirCS.controls.update();
+	
 	// Render
 	AirCS.renderer.render(AirCS.scene, AirCS.camera);
 	requestAnimationFrame(animate);

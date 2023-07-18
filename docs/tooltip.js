@@ -8,6 +8,7 @@ let element = document.getElementById("tooltip"),
 	hide = function () { element.style.visibility = "hidden"; },
 	isVisible = function () { return element.style.visibility === "visible"; },
 	update = function () {
+        AirCS.raycastPointer();
 		switch (targetType) {
 			case "station":
 				let title = `● ${nameOrShortcode(target.aircs_station, target.shortcode)}`;
@@ -54,12 +55,12 @@ window.addEventListener("pointermove", function (event) {
 });
 
 export function addEventListenersTo(domElement) {
-	domElement.addEventListener("mousedown", function (event) {
+	domElement.addEventListener("pointerdown", function (event) {
 		element.style.left = event.clientX + "px";
 		element.style.top = event.clientY + "px";
 		unfreeze();
 	});
-	domElement.addEventListener("mouseup", function (event) {
+	domElement.addEventListener("pointerup", function (event) {
 		element.style.left = event.clientX + "px";
 		element.style.top = event.clientY + "px";
 		update();
