@@ -3,7 +3,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 
 import fetchData from './data.js'
-import {stationTooltip, lineTooltip, hideTooltip} from "./tooltip.js";
+import * as tooltip from "./tooltip.js";
 import {cubicEaseInOut, cubicEaseInOutDerivative, nameOrShortcode} from "./util.js";
 
 String.prototype.hashCode = function() {
@@ -245,11 +245,10 @@ console.log("Loaded", Object.keys(AirCS.stations).length, "stations, ", AirCS.li
 
 // Register pointer movement to use for showing information popups
 window.addEventListener("pointermove", function (e) {
-	document.getElementById("tooltip").style.left = e.clientX + "px";
-	document.getElementById("tooltip").style.top = e.clientY + "px";
 	AirCS.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
 	AirCS.pointer.y = - (e.clientY / window.innerHeight) * 2 + 1;
 });
+tooltip.addEventListenersTo(AirCS.renderer.domElement);
 
 const slideCamera = function (startTime, endTime, targetPosition, cameraPosition) {
 	AirCS.cameraSliding = {
@@ -336,6 +335,7 @@ const animate = function () {
 	// Camera sliding
 	let dt = AirCS.clock.getDelta();
 	if (AirCS.cameraSliding) {
+		tooltip.unfreeze();
 		let y = cubicEaseInOut(AirCS.cameraSliding.startTime, AirCS.cameraSliding.endTime, AirCS.clock.elapsedTime),
 			dy = dt * cubicEaseInOutDerivative(AirCS.cameraSliding.startTime, AirCS.cameraSliding.endTime, AirCS.clock.elapsedTime),
 			targetDir = new THREE.Vector3().subVectors(AirCS.cameraSliding.targetPosition, AirCS.controls.target).divideScalar(1 - y),
@@ -367,11 +367,14 @@ const animate = function () {
 		}
 	}
 	if (stationIntersect) {
-		stationTooltip(stationIntersect);
+		document.body.style.cursor = "pointer";
+		tooltip.targetStation(stationIntersect);
 	} else if (lineIntersect) {
-		lineTooltip(lineIntersect.a, lineIntersect.b, lineIntersect.type, lineIntersect.service);
+		document.body.style.cursor = "pointer";
+		tooltip.targetLine(lineIntersect);
 	} else {
-		hideTooltip();
+		document.body.style.cursor = "auto";
+		tooltip.removeTarget();
 	}
 
 	// Render

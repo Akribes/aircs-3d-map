@@ -1,28 +1,70 @@
 import {comparePlatforms, nameOrShortcode} from "./util.js";
 
-const stationTooltip = function (station) {
-	document.body.style.cursor = "pointer";
-	document.getElementById("tooltip").style.visibility = "visible";
-	let title = `● ${nameOrShortcode(station.aircs_station, station.shortcode)}`;
-	let platforms = "<tr><th>Platform</th><th>Destination</th></tr>";
-	for (let platform of Object.values(station.platforms).sort((a, b) => comparePlatforms(a.platform, b.platform))) {
-		platforms += `<tr><td class="platform ${platform.type}">${platform.platform}</td><td>${nameOrShortcode(AirCS.stations[platform.to].aircs_station, platform.to)}</td></tr>`;
-	}
-	document.getElementById("tooltip").innerHTML = `<h3>${title}</h3><p>Station</p><hr><table>${platforms}</table>`;
+let element = document.getElementById("tooltip"),
+	frozen = false,
+	targetType,
+	target,
+	show = function () { element.style.visibility = "visible"; },
+	hide = function () { element.style.visibility = "hidden"; },
+	isVisible = function () { return element.style.visibility === "visible"; },
+	update = function () {
+		switch (targetType) {
+			case "station":
+				let title = `● ${nameOrShortcode(target.aircs_station, target.shortcode)}`;
+				let platforms = "<tr><th>Platform</th><th>Destination</th></tr>";
+				for (let platform of Object.values(target.platforms).sort((a, b) => comparePlatforms(a.platform, b.platform))) {
+					platforms += `<tr><td class="platform ${platform.type}">${platform.platform}</td>` +
+						`<td>${nameOrShortcode(AirCS.stations[platform.to].aircs_station, platform.to)}</td></tr>`;
+				}
+				element.innerHTML = `<h3>${title}</h3><p>Station</p><hr><table>${platforms}</table>`;
+				show();
+				break;
+			case "line":
+				element.innerHTML = `<h3 class="${target.type}">⇢ ${target.a}&ndash;${target.b}</h3><p>AirCS ${target.service}</p>`;
+				show();
+				break;
+			default:
+				hide();
+		}
+	};
+
+export function unfreeze () {
+	update();
+	frozen = false;
 }
 
-const lineTooltip = function (from, to, type, service) {
-	//document.body.style.cursor = "pointer";
-	document.getElementById("tooltip").style.visibility = "visible";
-	document.getElementById("tooltip").innerHTML = `
-<h3 class="${type}">⇢ ${from}&ndash;${to}</h3>
-<p>AirCS ${service}</p>
-`;
+export function addEventListenersTo(domElement) {
+	domElement.addEventListener("pointermove", function (event) {
+		if (!frozen) {
+			element.style.left = event.clientX + "px";
+			element.style.top = event.clientY + "px";
+			update();
+		}
+	});
+	domElement.addEventListener("mousedown", function (event) {
+		element.style.left = event.clientX + "px";
+		element.style.top = event.clientY + "px";
+		unfreeze();
+	});
+	domElement.addEventListener("mouseup", function (event) {
+		element.style.left = event.clientX + "px";
+		element.style.top = event.clientY + "px";
+		update();
+		frozen = isVisible();
+	});
+	domElement.addEventListener("wheel", unfreeze);
 }
 
-const hideTooltip = function () {
-	document.getElementById("tooltip").style.visibility = "hidden";
-	document.body.style.cursor = "auto";
+export function targetStation (station) {
+	targetType = "station";
+	target = station;
 }
 
-export {stationTooltip, lineTooltip, hideTooltip};
+export function targetLine (line) {
+	targetType = "line";
+	target = line;
+}
+
+export function removeTarget () {
+	targetType = null;
+}
