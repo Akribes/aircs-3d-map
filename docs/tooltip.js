@@ -11,12 +11,23 @@ let element = document.getElementById("tooltip"),
 		switch (targetType) {
 			case "station":
 				let title = `● ${nameOrShortcode(target.aircs_station, target.shortcode)}`;
-				let platforms = "<tr><th>Platform</th><th>Destination</th></tr>";
+				let platformsTable = document.createElement("table");
+				platformsTable.insertAdjacentHTML("beforeend", "<tr><th>Platform</th><th>Destination</th></tr>");
 				for (let platform of Object.values(target.platforms).sort((a, b) => comparePlatforms(a.platform, b.platform))) {
-					platforms += `<tr><td class="platform ${platform.type}">${platform.platform}</td>` +
-						`<td>${nameOrShortcode(AirCS.stations[platform.to].aircs_station, platform.to)}</td></tr>`;
+					let tr = document.createElement("tr");
+					tr.insertAdjacentHTML("beforeend",
+						`<td class="platform ${platform.type}">${platform.platform}</td>`);
+					let stationTd = document.createElement("td");
+					let stationA = document.createElement("a");
+					stationA.setAttribute("href", "#");
+					stationA.addEventListener("click", () => AirCS.viewStation(AirCS.stations[platform.to]));
+					stationA.innerHTML = nameOrShortcode(AirCS.stations[platform.to].aircs_station, platform.to);
+					stationTd.appendChild(stationA);
+					tr.appendChild(stationTd);
+					platformsTable.appendChild(tr);
 				}
-				element.innerHTML = `<h3>${title}</h3><p>Station</p><hr><table>${platforms}</table>`;
+				element.innerHTML = `<h3>${title}</h3><p>Station</p><hr>`;
+				element.appendChild(platformsTable);
 				show();
 				break;
 			case "line":
@@ -33,14 +44,16 @@ export function unfreeze () {
 	frozen = false;
 }
 
+// Add this to window instead of the renderer, in case the mouse moves over the tooltip when it's not frozen
+window.addEventListener("pointermove", function (event) {
+	if (!frozen) {
+		element.style.left = event.clientX + "px";
+		element.style.top = event.clientY + "px";
+		update();
+	}
+});
+
 export function addEventListenersTo(domElement) {
-	domElement.addEventListener("pointermove", function (event) {
-		if (!frozen) {
-			element.style.left = event.clientX + "px";
-			element.style.top = event.clientY + "px";
-			update();
-		}
-	});
 	domElement.addEventListener("mousedown", function (event) {
 		element.style.left = event.clientX + "px";
 		element.style.top = event.clientY + "px";

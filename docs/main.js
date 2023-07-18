@@ -250,12 +250,12 @@ window.addEventListener("pointermove", function (e) {
 });
 tooltip.addEventListenersTo(AirCS.renderer.domElement);
 
-const slideCamera = function (startTime, endTime, targetPosition, cameraPosition) {
+AirCS.viewStation = function (station) {
 	AirCS.cameraSliding = {
-		startTime,
-		endTime,
-		targetPosition,
-		cameraPosition
+		startTime: AirCS.clock.elapsedTime,
+		endTime: AirCS.clock.elapsedTime + 1,
+		targetPosition: station.mesh.position,
+		cameraPosition: new THREE.Vector3(0, 3, 4).add(station.mesh.position)
 	};
 };
 
@@ -273,9 +273,7 @@ const search = function () {
 		let that = this;
 		item.addEventListener("click", function (e) {
 			that.value = r.aircs_station || r.shortcode;
-			slideCamera(AirCS.clock.elapsedTime, AirCS.clock.elapsedTime + 1,
-				r.mesh.position,
-				new THREE.Vector3(0, 3, 4).add(r.mesh.position));
+			AirCS.viewStation(r);
 			resultsElement.innerHTML = "";
 		});
 		item.innerHTML = nameOrShortcode(r.aircs_station, r.shortcode);
@@ -367,13 +365,13 @@ const animate = function () {
 		}
 	}
 	if (stationIntersect) {
-		document.body.style.cursor = "pointer";
+		AirCS.renderer.domElement.style.cursor = "pointer";
 		tooltip.targetStation(stationIntersect);
 	} else if (lineIntersect) {
-		document.body.style.cursor = "pointer";
+		AirCS.renderer.domElement.style.cursor = "pointer";
 		tooltip.targetLine(lineIntersect);
 	} else {
-		document.body.style.cursor = "auto";
+		AirCS.renderer.domElement.style.cursor = "auto";
 		tooltip.removeTarget();
 	}
 
