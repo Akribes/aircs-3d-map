@@ -243,17 +243,6 @@ const physics = function (dt) {
 
 console.log("Loaded", Object.keys(AirCS.stations).length, "stations, ", AirCS.lines.length, "lines");
 
-// Register pointer movement to use for showing information popups
-const handlePointerEvents = function (e) {
-	AirCS.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-	AirCS.pointer.y = - (e.clientY / window.innerHeight) * 2 + 1;
-}
-window.addEventListener("pointermove", handlePointerEvents, true);
-window.addEventListener("pointerdown", handlePointerEvents, true);
-window.addEventListener("pointerup", handlePointerEvents, true);
-
-tooltip.addEventListenersTo(AirCS.renderer.domElement);
-
 AirCS.viewStation = function (station) {
 	AirCS.cameraSliding = {
 		startTime: AirCS.clock.elapsedTime,
@@ -358,6 +347,17 @@ AirCS.raycastPointer = function () {
 		tooltip.removeTarget();
 	}
 };
+
+// Register pointer movement to use for showing information popups
+const handlePointerEvents = function (e) {
+	AirCS.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+	AirCS.pointer.y = - (e.clientY / window.innerHeight) * 2 + 1;
+}
+window.addEventListener("pointermove", handlePointerEvents, true);
+window.addEventListener("pointerdown", handlePointerEvents, true);
+window.addEventListener("pointerup", handlePointerEvents, true);
+
+tooltip.addEventListenersTo(AirCS.renderer.domElement);
 
 // Main loop
 const animate = function () {

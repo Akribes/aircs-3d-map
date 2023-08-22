@@ -45,15 +45,6 @@ export function unfreeze () {
 	frozen = false;
 }
 
-// Add this to window instead of the renderer, in case the mouse moves over the tooltip when it's not frozen
-window.addEventListener("pointermove", function (event) {
-	if (!frozen) {
-		element.style.left = event.clientX + "px";
-		element.style.top = event.clientY + "px";
-		update();
-	}
-});
-
 export function addEventListenersTo(domElement) {
 	domElement.addEventListener("pointerdown", function (event) {
 		element.style.left = event.clientX + "px";
@@ -67,6 +58,15 @@ export function addEventListenersTo(domElement) {
 		frozen = isVisible();
 	});
 	domElement.addEventListener("wheel", unfreeze);
+
+	// Add this to window instead of the renderer, in case the mouse moves over the tooltip when it's not frozen
+	window.addEventListener("pointermove", function (event) {
+		if (!frozen) {
+			element.style.left = event.clientX + "px";
+			element.style.top = event.clientY + "px";
+			update();
+		}
+	});
 }
 
 export function targetStation (station) {
