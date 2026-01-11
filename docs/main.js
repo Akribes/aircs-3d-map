@@ -5,6 +5,7 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import fetchData from './data.js'
 import * as tooltip from "./tooltip.js";
 import {cubicEaseInOut, cubicEaseInOutDerivative, nameOrShortcode} from "./util.js";
+import {step} from "./graph.js";
 
 String.prototype.hashCode = function() {
 	let hash = 0,
@@ -90,9 +91,9 @@ const createModels = function () {
 	let stationGeometry = new THREE.SphereGeometry(0.2, 32, 16),
 		stationMaterial = new THREE.MeshLambertMaterial({color: 0xff0000}),
 		lineGeometries = {
-			X: new THREE.BoxGeometry(0.15, 1, 0.001).rotateX(Math.PI / -2),
-			Y: new THREE.BoxGeometry(0.15, 1, 0.002).rotateX(Math.PI / -2),
-			A: new THREE.BoxGeometry(0.15, 1, 0.003).rotateX(Math.PI / -2)
+			X: new THREE.BoxGeometry(0.08, 1, 0.001).rotateX(Math.PI / -2),
+			Y: new THREE.BoxGeometry(0.08, 1, 0.002).rotateX(Math.PI / -2),
+			A: new THREE.BoxGeometry(0.08, 1, 0.003).rotateX(Math.PI / -2)
 		};
 
 	AirCS.lines = [];
@@ -129,6 +130,7 @@ const createModels = function () {
 		station.update = function (time) {
 			this.velocity.addScaledVector(this.acceleration, time);
 			this.mesh.position.addScaledVector(this.velocity, time);
+			console.log(this.mesh.position);
 			return this.velocity.multiplyScalar(time).lengthSq();
 		}
 	}
@@ -190,57 +192,6 @@ const createModels = function () {
 };
 createModels();
 
-// Move the stations so that their mean position on the map is (0, 0, 0).
-const balance = function () {
-	let mean = new THREE.Vector3();
-	for (let position of Object.values(AirCS.stations).map(s => s.mesh.position)) {
-		mean.add(position);
-	}
-	mean.divideScalar(Object.keys(AirCS.stations).length);
-	for (let position of Object.values(AirCS.stations).map(s => s.mesh.position)) {
-		position.sub(mean);
-	}
-}
-
-// Try to find a good graph drawing of the network by pulling all neighbours towards each other and pushing every pair
-// of stations away from each other. Also, apply some force towards the centre of the world so that stations don't drift
-// off. Returns the mean square position change of the stations.
-const physics = function (dt) {
-	const SEPARATE = 600; // Push away vertices from each other
-	const SEPARATE_RADIUS = 15; // Vertices affect each other within this distance
-	const NEIGHBOURS = 600; // Pull neighbours towards each other
-	const NEIGHBOURS_DISTANCE = 5; // Target distance between neighbours
-	const GRAVITY = 0.01; // Pull everything towards the centre of the world slightly
-
-	for (let me of Object.values(AirCS.stations)) {
-		let f_res = new THREE.Vector3(0, 0, 0);
-		for (let [yourShortcode, you] of Object.entries(AirCS.stations)) {
-			let diff = new THREE.Vector3().subVectors(you.mesh.position, me.mesh.position);
-			let distance = diff.length();
-			if (distance > 0) {
-				let direction = diff.normalize();
-				f_res.addScaledVector(direction, -1 * SEPARATE * Math.max(0, 1 - distance / SEPARATE_RADIUS));
-
-				if (Object.values(me.platforms).map(p => p.to).includes(yourShortcode)) {
-					f_res.addScaledVector(direction, NEIGHBOURS * Math.max(distance - NEIGHBOURS_DISTANCE, 0));
-				}
-
-				f_res.addScaledVector(me.mesh.position, -1 * GRAVITY);
-			}
-		}
-		me.acceleration = f_res;
-	}
-
-	let movement = 0;
-	for (let station of Object.values(AirCS.stations)) {
-		movement += station.update(dt);
-	}
-	for (let line of AirCS.lines) {
-		line.update();
-	}
-	return movement / Object.keys(AirCS.stations).length;
-}
-
 console.log("Loaded", Object.keys(AirCS.stations).length, "stations, ", AirCS.lines.length, "lines");
 
 AirCS.viewStation = function (station) {
@@ -264,7 +215,7 @@ const search = function () {
 		item.className = "result";
 		item.tabIndex = 0; // Make it tabbable, and also cause it to appear as a relatedTarget in blur events
 		let that = this;
-		item.addEventListener("click", function (e) {
+		item.addEventListener("click", function () {
 			that.value = r.aircs_station || r.shortcode;
 			AirCS.viewStation(r);
 			resultsElement.innerHTML = "";
@@ -386,16 +337,31 @@ const animate = function () {
 }
 animate();
 
-// Run physics separately, we don't want to wait for animation frames
-const process = function () {
-	let i = 0;
-	return function () {
-		i += 1;
-		let movement = physics(1 / 60);
-		balance();
-		if (movement >= 0.0105 / 60) {
-			setTimeout(process);
+
+// Compute station positions
+let n = Object.values(AirCS.stations).length;
+let adj = Array(n).fill(0).map(() => Array(n).fill(false));
+for (let i = 0; i < n; i++) {
+	for (let j = 0; j < i; j++) {
+		let a = Object.values(AirCS.stations)[i];
+		let b = Object.values(AirCS.stations)[j];
+		if (Object.values(a.platforms).map(p => p.to).includes(b.shortcode)) {
+			adj[i][j] = true;
+			adj[j][i] = true;
 		}
 	}
-}();
-process();
+}
+
+let intervalId;
+const moveStations = function () {
+	let points = Object.values(AirCS.stations).map(x => new THREE.Vector2(x.mesh.position.x, x.mesh.position.z));
+	let next = step(points, adj);
+	Object.values(AirCS.stations).forEach((x, i) => {
+		x.mesh.position.set(next[i].x, 0, next[i].y);
+	});
+	AirCS.lines.forEach(x => x.update());
+
+	let averageMovement = points.reduce((acc, x, i) => acc + x.distanceTo(next[i]), 0) / points.length;
+	if (averageMovement <= 0.035) clearInterval(intervalId);
+};
+intervalId = setInterval(moveStations);
