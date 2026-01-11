@@ -9,7 +9,7 @@ export default (function () {
 			.slice(47, -2))["table"];
 
 		let data = {};
-		const insertStation = function (shortcode, aircs_station, sqtr_station, cx, cz, built_aircs, built_sqtr, racecs,
+		const insertStation = function (shortcode, aircs_station, sqtr_station, clyrail_station, cx, cz, built_aircs, built_sqtr, racecs,
 										pts, newmap, chataccouncements, newsigns, surveyed, connected2022) {
 			data[shortcode] = {shortcode, aircs_station, platforms: {}, cx, cz};
 		}
